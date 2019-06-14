@@ -66,6 +66,22 @@
         
 
         <span class="cate-title">
+                <a href="/category/%e5%8e%86%e5%8f%b2">
+                    历史
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%ae%97%e6%95%99">
+                    宗教
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
                 <a href="/category/%e6%8a%80%e6%9c%af">
                     技术
                 </a>&nbsp;
@@ -182,12 +198,12 @@ func main() {
     // 创建机器人并给机器人命名
     bot := axiom.New(&quot;Axiom&quot;)
     // 添加shell适配器
-    bot.AddAdapter(axiom.NewShell(b))
-    // 注册blog监听器
-    bot.Register(&amp;BlogListener{})
+	bot.AddAdapter(axiom.NewShell(b))
+	// 注册blog监听器
+	bot.Register(&amp;BlogListener{})
 
     // 运行机器人
-    b.Start()
+	b.Start()
 }
 </code></pre>
 
@@ -232,7 +248,7 @@ func (b *BlogListener) updateChca(ctx *axiom.Context, m string) {
     ctx.Reply(&quot;解压缩完成，复制文件...\n&quot;)
 
     if runtime.GOOS != &quot;windows&quot; {
-        cmd :=exec.Command(&quot;chmod&quot;, &quot;777&quot;,  b.WorkerDir+&quot;/chca&quot;)
+        cmd :=exec.Command(&quot;chmod&quot;, &quot;777&quot;, 	b.WorkerDir+&quot;/chca&quot;)
         if err := cmd.Start(); err != nil {
             ctx.Reply(&quot;修改文件权限失败,请手动修改\n&quot;)
             return
@@ -380,7 +396,7 @@ func main() {
 
             <nav class="article-nav" id="state">
                 <span class="label label-important">PERMANENT LINK:</span>
-                <a href="http://blog.golune.com//article/2017/4/7/%e5%8d%9a%e5%ae%a2%e7%94%9f%e6%88%90%e5%8a%a9%e6%89%8b/">http://blog.golune.com//article/2017/4/7/博客生成助手/</a>
+                <a href="http://chca.me/article/2017/4/7/%e5%8d%9a%e5%ae%a2%e7%94%9f%e6%88%90%e5%8a%a9%e6%89%8b/">http://chca.me/article/2017/4/7/博客生成助手/</a>
             </nav>
 
         </div>
