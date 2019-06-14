@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="php" />
+    <meta name="description" content="&lt;p&gt;1.php 接口类:interface&lt;/p&gt;
+
+&lt;p&gt;其实他们的作用很简单，当有很多人一起开发一个项目时，可能都会去调用别人写的一些类，那你就会问，我怎么知道他的某个功能的实现方法是怎么命名的呢，这个时候php接口类就起到作用了，当我们定义了一个接口类时，它里面的方式是下面的子类必须实现的，比如 :&lt;/p&gt;
+
+&lt;p&gt;```php&lt;br /&gt;
+interface Shop{&lt;br /&gt;
+      public function buy($gid);&lt;br /&gt;
+      public function sell($gid);&lt;/p&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>PHP abstract 和 interface 的区别</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>PHP abstract 和 interface 的区别
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            <p>1.php 接口类:interface</p>
+
+<p>其实他们的作用很简单，当有很多人一起开发一个项目时，可能都会去调用别人写的一些类，那你就会问，我怎么知道他的某个功能的实现方法是怎么命名的呢，这个时候php接口类就起到作用了，当我们定义了一个接口类时，它里面的方式是下面的子类必须实现的，比如 :</p>
+
+<pre><code class="language-php">interface Shop{  
+      public function buy($gid);  
+      public function sell($gid);  
+      public function view($gid);  
+}
+</code></pre>
+
+<p>我声明一个shop接口类，定义了三个方法：买(buy),卖(sell),看 (view),那么继承此类的所有子类都必须实现这3个方法少一个都 不行，如果子类没有实现这些话，就无法运行。实际上接口类说白了，就是一个类的模板，一个类的规定，如果你属于这类，你就必须遵循我的规定，少一个都不 行，但是具体你怎么去做，我不管，那是你的事，如：</p>
+
+<pre><code class="language-php">class BaseShop implements Shop{  
+   public function buy($gid){  
+      echo('你购买了ID为 :'.$gid.'的商品');  
+   }  
+   public function sell($gid){  
+      echo('你卖了ID为 :'.$gid.'的商品');  
+   }  
+   public function view($gid){  
+      echo('你查看了ID为 :'.$gid.'的商品');  
+   }  
+}
+</code></pre>
+
+<p>你想想，在一个多人合作的大项目里面，有了接口类是多么的方便，这样你就不用去问别人，你的某某功能的方法名是什么了，当然如果你们喜欢这样我也没有办法。</p>
+
+<p>结论 ： 接口类就是一个类的领导者，指明方向，子类必须完成它指定方法。</p>
+
+<p>2.php 抽象类 : abstract</p>
+
+<p>其 实抽象类和接口类有一部分很像，记得在哪里看见这样一句话，抽象类就把类像的部分抽出来，这句看上去很搞笑，其实它说出了抽象类的真理，抽象类的 作用是，当你发现你的很多类里面用很多方法你不断的在重复写，那你就可以考虑使用抽象类了，你可能会说“我不是可以重写一个类每个公共类我个实例化一个这 个公共类，调用相同的方法就可以了”，这里是可以，实际上抽象类做的工作也就是这个，不过他省去了你实例化的这个步骤，让你就像直接调用本类方法一样方 便，而且你还可以重载这个方法。如：</p>
+
+<pre><code class="language-php">abstract class BaseShop{  
+     public function buy($gid){  
+         echo('你购买了ID为 :'.$gid.'的商品');  
+     }  
+     public function sell($gid){  
+         echo('你卖了ID为 :'.$gid.'的商品');  
+     }  
+     public function view($gid){  
+         echo('你查看了ID为 :'.$gid.'的商品');  
+    }  
+ }  
+ class BallShop extends BaseShop{  
+     var $itme_id = null;  
+     public function __construct(){  
+         $this-&gt;itme_id = 2314;  
+     }  
+    public function open(){  
+         $this-&gt;sell($this-&gt;itme_id);  
+     }  
+}
+</code></pre>
+
+<p>这里是一个例子，想上面一样我定义了一个商店类，抽出了它所有像的部分，买(buy),卖(sell),看(view),并且抽象类里都实现了这些方法，那么继承它的子类就自动获得了这些方法，子类就做它自己独特的东西，介绍代码的重复，提高复用性。</p>
+
+<p><strong>结 论</strong>： 抽象类就是一个类的服务提供商，拥有众多服务，你不用必须用，当需要的时候你来用就可以，如果你觉得不提供服务不满意，你还可以自己来做。而 abstract function 方法和interface有些相似，就是父类中生声明的方法，子类中必须实现，但是没有用abstract声明的方法将成为子类的公共方法，没有必要在子 类中必须实现</p>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2015/9/6/php-abstract-%e5%92%8c-interface-%e7%9a%84%e5%8c%ba%e5%88%ab/">http://blog.golune.com//article/2015/9/6/php-abstract-和-interface-的区别/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2015-09-06</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/php">php</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="488acb10ed80fa0e9cab5446f3e4e987" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="docker" />
+    <meta name="description" content="&lt;p&gt;Dockerfile语法由两部分构成，注释和命令&#43;参数&lt;/p&gt;
+
+&lt;h1&gt;Line blocks used for commenting&lt;/h1&gt;
+
+&lt;p&gt;command argument argument ..&lt;br /&gt;
+一个简单的例子&lt;br /&gt;
+#第一行必须指令基于的基础镜像&lt;/p&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>Dockerfile 语法</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>Dockerfile 语法
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p><h4>文章导航:</h4><nav>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#toc_0">FROM</a></li>
+<li><a href="#toc_1">MAINTAINER</a></li>
+<li><a href="#toc_2">RUN</a></li>
+<li><a href="#toc_3">USER</a></li>
+<li><a href="#toc_4">VOLUME</a></li>
+<li><a href="#toc_5">WORKDIR</a></li>
+<li><a href="#toc_6">CMD</a></li>
+<li><a href="#toc_7">ENV</a></li>
+<li><a href="#toc_8">ADD</a></li>
+<li><a href="#toc_9">COPY（基本于ADD没有区别）</a></li>
+<li><a href="#toc_10">EXPOSE</a></li>
+<li><a href="#toc_11">ENTRYPOINT</a></li>
+<li><a href="#toc_12">ONBUILD</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/1044756-28cdc48f58802c20.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="" /></p>
+
+<p>Dockerfile语法由两部分构成，注释和命令+参数</p>
+
+<pre><code># Line blocks used for commenting
+command argument argument ..
+</code></pre>
+
+<p>一个简单的例子</p>
+
+<pre><code>#第一行必须指令基于的基础镜像
+FROM ubutu
+
+#维护者信息
+MAINTAINER docker_user  docker_user@mail.com
+
+#镜像的操作指令
+RUN apt-get update &amp;&amp; apt-get install -y ngnix 
+RUN echo &quot;\ndaemon off;&quot;&gt;&gt;/etc/ngnix/nignix.conf
+
+#容器启动时执行指令
+CMD /usr/sbin/ngnix
+</code></pre>
+
+<p>Dockerfile 命令</p>
+
+<h3 id="toc_0">FROM</h3>
+
+<blockquote>
+<p>基础镜像可以为任意镜像。如果基础镜像没有被发现，Docker将试图从Docker image index来查找该镜像。FROM命令必须是Dockerfile的首个命令。如果同一个DockerFile创建多个镜像时，可使用多个FROM指令（每个镜像一次）</p>
+</blockquote>
+
+<pre><code># Usage: FROM [image name]
+FROM ubuntu 
+</code></pre>
+
+<h3 id="toc_1">MAINTAINER</h3>
+
+<blockquote>
+<p>指定维护者的信息，并应该放在FROM的后面。</p>
+</blockquote>
+
+<pre><code># Usage: MAINTAINER [name]
+MAINTAINER authors_name 
+</code></pre>
+
+<h3 id="toc_2">RUN</h3>
+
+<blockquote>
+<p>RUN命令是Dockerfile执行命令的核心部分。它接受命令作为参数并用于创建镜像。不像CMD命令，RUN命令用于创建镜像（在之前commit的层之上形成新的层）。<br />
+格式为Run 或者Run [“executable” ,”Param1”, “param2”]<br />
+前者在shell终端上运行，即/bin/sh -C，后者使用exec运行。例如：RUN [“/bin/bash”, “-c”,”echo hello”]<br />
+每条run指令在当前基础镜像执行，并且提交新镜像。当命令比较长时，可以使用“/”换行。</p>
+</blockquote>
+
+<pre><code># Usage: RUN [command]
+RUN apt-get update 
+</code></pre>
+
+<h3 id="toc_3">USER</h3>
+
+<blockquote>
+<p>格式为 USER daemon 。<br />
+指定运行容器时的用户名或UID，后续的 RUN 也会使用指定用户。<br />
+当服务不需要管理员权限时，可以通过该命令指定运行用户。并且可以在之前创建所需要的用户，例如： RUN groupadd -r postgres &amp;&amp; useradd -r -g postgres postgres 。要临时获取管理员权限可以使用 gosu ，而不推荐 sudo 。</p>
+</blockquote>
+
+<pre><code># Usage: USER [UID]
+USER 751
+</code></pre>
+
+<h3 id="toc_4">VOLUME</h3>
+
+<blockquote>
+<p>VOLUME命令用于让你的容器访问宿主机上的目录。<br />
+格式为 VOLUME [“/data”] 。<br />
+创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放<a href="http://lib.csdn.net/base/mysql">数据库</a>和需要保持的数据等。</p>
+</blockquote>
+
+<pre><code># Usage: VOLUME [&quot;/dir_1&quot;, &quot;/dir_2&quot; ..]
+VOLUME [&quot;/my_files&quot;, &quot;/app_files&quot;]
+</code></pre>
+
+<h3 id="toc_5">WORKDIR</h3>
+
+<blockquote>
+<p>WORKDIR命令用于设置CMD指明的命令的运行目录。<br />
+格式为 WORKDIR /path/to/workdir 。<br />
+为后续的 RUN 、 CMD 、 ENTRYPOINT 指令配置工作目录。<br />
+可以使用多个 WORKDIR 指令，后续命令如果参数是相对路径，则会基于之前命令指定的路径。例如:</p>
+</blockquote>
+
+<pre><code>WORKDIR /a 
+WORKDIR b 
+WORKDIR c 
+RUN pwd 
+# 最终路径为 /a/b/c 。
+</code></pre>
+
+<h3 id="toc_6">CMD</h3>
+
+<blockquote>
+<p>支持三种格式：<br />
+CMD [“executable” ,”Param1”, “param2”]使用exec执行，推荐<br />
+CMD command param1 param2，在/bin/sh上执行<br />
+CMD [“Param1”, “param2”] 提供给ENTRYPOINT做默认参数。<br />
+每个容器只能执行一条CMD命令，多个CMD命令时，只最后一条被执行。</p>
+</blockquote>
+
+<pre><code># Usage 1: CMD application &quot;argument&quot;, &quot;argument&quot;, ..
+CMD &quot;echo&quot; &quot;Hello docker!&quot;
+</code></pre>
+
+<h3 id="toc_7">ENV</h3>
+
+<blockquote>
+<p>格式为 ENV 。 指定一个环境变量，会被后续 RUN 指令使用，并在容器运行时保持。</p>
+</blockquote>
+
+<pre><code>ENV TZ &quot;Asia/Shanghai&quot;
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+</code></pre>
+
+<h3 id="toc_8">ADD</h3>
+
+<blockquote>
+<p>ADD命令有两个参数，源和目标。它的基本作用是从源系统的文件系统上复制文件到目标容器的文件系统。如果源是一个URL，那该URL的内容将被下载并复制到容器中。如果文件是可识别的压缩格式，则docker会帮忙解压缩。</p>
+</blockquote>
+
+<pre><code># Usage: ADD [source directory or URL] [destination directory]
+ADD /my_app_folder /my_app_folder 
+</code></pre>
+
+<h3 id="toc_9">COPY（基本于ADD没有区别）</h3>
+
+<blockquote>
+<p>COPY 将文件从路径 <src复制添加到容器内部路径 <dest>。</p>
+</blockquote>
+
+<pre><code>COPY &lt;src&gt; &lt;dest&gt;
+</code></pre>
+
+<h3 id="toc_10">EXPOSE</h3>
+
+<blockquote>
+<p>指定在docker允许时指定的端口进行转发</p>
+</blockquote>
+
+<pre><code>EXPOSE &lt;port&gt;[&lt;port&gt;...]
+</code></pre>
+
+<h3 id="toc_11">ENTRYPOINT</h3>
+
+<blockquote>
+<p>两种格式：<br />
+   ENTRYPOINT [&ldquo;executable&rdquo;, &ldquo;param1&rdquo;, &ldquo;param2&rdquo;]<br />
+   ENTRYPOINT command param1 param2（shell中执行）。<br />
+配置容器启动后执行的命令，并且不可被 docker run 提供的参数覆盖。<br />
+每个 Dockerfile 中只能有一个 ENTRYPOINT，当指定多个时，只有最后一个起效。</p>
+</blockquote>
+
+<h3 id="toc_12">ONBUILD</h3>
+
+<blockquote>
+<p>ONBUILD 指定的命令在构建镜像时并不执行，而是在它的子镜像中执行</p>
+</blockquote>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2017/3/24/dockerfile-%e8%af%ad%e6%b3%95/">http://blog.golune.com//article/2017/3/24/dockerfile-语法/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2017-03-24</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/docker">docker</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/docker">docker</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="dc340d50de3e7bc5973630d242ebeaa6" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

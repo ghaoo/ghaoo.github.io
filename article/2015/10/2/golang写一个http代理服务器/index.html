@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="golang,服务器" />
+    <meta name="description" content="&lt;p&gt;一个简单的http代理服务器&lt;/p&gt;
+
+&lt;p&gt;代码，首先创建一个名为Anget的结构体：&lt;/p&gt;
+
+&lt;p&gt;```go&lt;br /&gt;
+type Anget struct {&lt;br /&gt;
+    Server string           //需要代理的host&lt;br /&gt;
+    Uri    string           //访问的uri&lt;/p&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>golang写一个http代理服务器</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>golang写一个http代理服务器
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            <p>一个简单的http代理服务器</p>
+
+<p>代码，首先创建一个名为Anget的结构体：</p>
+
+<pre><code class="language-go">type Anget struct {
+    Server string           //需要代理的host
+    Uri    string           //访问的uri
+    Param  string           //传递的参数
+    Method string           //访问方式（restful）
+    resp   *http.Response
+}
+</code></pre>
+
+<p>给Anget添加一个result方法，接收返回的信息</p>
+
+<pre><code class="language-go">func (anget *Anget) result(w http.ResponseWriter, r *http.Request) {
+    // 解析参数, 默认是不会解析的
+    r.ParseForm()
+
+    anget.Uri = r.URL.Path  //获取访问的uri
+    anget.Method = r.Method //获取访问方法method
+    anget.Param = r.Form.Encode()   //获取需要的参数
+
+    u, _ := url.Parse(&quot;http://&quot; + anget.Server + anget.Uri)
+
+    // 输出想要的信息
+    log.Println(&quot;地址：&quot;, u)
+    log.Println(&quot;参数：&quot;, anget.Param)
+    log.Println(&quot;方法：&quot;, anget.Method)
+    total++
+
+    // 判断访问方法，访问原链接
+    switch anget.Method {
+    case &quot;GET&quot;:
+        anget.resp, _ = http.Get(u.String())
+    case &quot;POST&quot;:
+        anget.resp, _ = http.Post(u.String(), &quot;application/x-www-form-urlencoded&quot;, strings.NewReader(anget.Param))
+    default:
+        http.Error(w, http.StatusText(500), 500)
+    }
+    defer anget.resp.Body.Close()
+    body, _ := ioutil.ReadAll(anget.resp.Body)
+
+    // 输出到客户端
+    fmt.Fprintf(w, string(body))
+    log.Println(&quot;返回：&quot;, string(body))
+}
+</code></pre>
+
+<p>然后写一个http服务器，用作客户端访问</p>
+
+<pre><code class="language-go">func (anget *Anget) Run(port string) {
+    //检测需要代理的host是否有效
+    conn, err := net.Dial(&quot;tcp&quot;, anget.Server)
+    if err != nil {
+        fmt.Println(&quot;连接服务端失败:&quot;, err.Error())
+        os.Exit(0)
+    }
+    fmt.Println(&quot;已连接测试服务器～～～&quot;)
+    conn.Close()
+
+    http.HandleFunc(&quot;/&quot;+anget.Uri, anget.result)
+    
+    fmt.Println(&quot;代理服务器开启，端口为：&quot; + port)
+    // 设置监听的端口
+    err = http.ListenAndServe(&quot;:&quot; + port, nil)
+    if err != nil {
+        log.Fatal(&quot;ListenAndServe: &quot;, err)
+    }
+}
+</code></pre>
+
+<pre><code class="language-go">func main() {
+    var ang mod.Anget
+
+    commands := os.Args
+    if len(commands) &lt; 3 {
+        help(&quot;help&quot;)
+        os.Exit(0)
+    }
+
+    switch commands[1] {
+    case &quot;help&quot;:
+        fmt.Println(Helptext)
+    case &quot;run&quot;:
+        switch commands[2] {
+        case &quot;--help&quot;, &quot;-h&quot;:
+            help(&quot;help&quot;)
+            os.Exit(0)
+        default:
+            ang.Server = commands[2]
+        }
+        ang.Run(&quot;9900&quot;)
+    default:
+        help(&quot;help&quot;)
+    }
+}
+</code></pre>
+
+<p>ok，代理服务器完成，help的内容自己完成吧，或者删除也可以，只要把原来的host地址改为代理服务器的host就可以实现代理了</p>
+
+<pre><code class="language-bash">go run main.go run 127.0.0.1:80
+</code></pre>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2015/10/2/golang%e5%86%99%e4%b8%80%e4%b8%aahttp%e4%bb%a3%e7%90%86%e6%9c%8d%e5%8a%a1%e5%99%a8/">http://blog.golune.com//article/2015/10/2/golang写一个http代理服务器/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2015-10-02</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/golang">golang</a>&nbsp;
+                    
+                    <a href="/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8">服务器</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="2b9d14800ef49c951bcefedc222326b6" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

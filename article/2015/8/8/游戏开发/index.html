@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="游戏" />
+    <meta name="description" content="&lt;p&gt;三层：&lt;br /&gt;
+&amp;gt; * 通讯层---协议描述语句以及代码自动生成&lt;br /&gt;
+&amp;gt; * 业务层---顺序结构以及接口注册&lt;br /&gt;
+&amp;gt; * 数据层---映射Mysql的内存数据库以及代码自动生成&lt;/p&gt;
+
+&lt;h3&gt;通讯层&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;通讯层协议描述文档的格式选择&lt;br /&gt;
+* XML、JSON&lt;/p&gt;
+&lt;/blockquote&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>游戏开发</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>游戏开发
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p><h4>文章导航:</h4><nav>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#toc_0">通讯层</a></li>
+<li><a href="#toc_1">业务层</a></li>
+<li><a href="#toc_2">数据层</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<p>三层：<br />
+&gt; * 通讯层---协议描述语句以及代码自动生成<br />
+&gt; * 业务层---顺序结构以及接口注册<br />
+&gt; * 数据层---映射Mysql的内存数据库以及代码自动生成</p>
+
+<h3 id="toc_0">通讯层</h3>
+
+<blockquote>
+<p>通讯层协议描述文档的格式选择<br />
+* XML、JSON<br />
+* Protobuf<br />
+* 自定义语法<br />
+* 可视化编辑</p>
+</blockquote>
+
+<h3 id="toc_1">业务层</h3>
+
+<blockquote>
+<p>从结构上屏蔽所有可能发生的阻塞<br />
+* 文件读写<br />
+* RPC调用<br />
+* chan阻塞</p>
+
+<p>尽可能提高相应速度<br />
+* 数据离cpu越近越好<br />
+* 避免数据复制和大集合遍历</p>
+
+<p>通过注册接口防止循环引用</p>
+</blockquote>
+
+<h3 id="toc_2">数据层</h3>
+
+<blockquote>
+<ul>
+<li>玩家数据库切片，减小查询时的集合<br /></li>
+<li>支持内存事务<br /></li>
+<li>以事务为单位同步到数据库<br /></li>
+<li>支持Redo、Undo以及数据挖掘的同步日志<br /></li>
+<li>GC优化<br /></li>
+</ul>
+</blockquote>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2015/8/8/%e6%b8%b8%e6%88%8f%e5%bc%80%e5%8f%91/">http://blog.golune.com//article/2015/8/8/游戏开发/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2015-08-08</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e7%ac%94%e8%ae%b0">笔记</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/%e6%b8%b8%e6%88%8f">游戏</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="03af44dfb57651192e1e5ff490e35760" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

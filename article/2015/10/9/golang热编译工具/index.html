@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="golang,热编译,自动化" />
+    <meta name="description" content="&lt;p&gt;之前用beego写api，感觉bee命令很好用，后来抛弃框架了，bee命令也不合适了，写程序编译每次都用 go run 感觉有点麻烦了，所以决定自己写一个热编译工具。&lt;/p&gt;
+
+&lt;p&gt;热编译工具一般是通过检测文件变化，并触发相应编译命令。&lt;br /&gt;
+现在已经有一些好用的热编译工具了，比如之前说的 &lt;a href=&#34;https://github.com/beego/bee&#34;&gt;bee&lt;/a&gt; 工具，&lt;a href=&#34;https://github.com/codeskyblue/fswatch&#34;&gt;fswatch&lt;/a&gt; 都还是挺不错的，可以研究一下他们的代码，如果想练手就自己写一个吧  o(-&amp;ldquo;-)o&lt;/p&gt;
+
+&lt;p&gt;用到的外部包只有一个 &lt;a href=&#34;https://github.com/go-fsnotify/fsnotify&#34;&gt;fsnotify&lt;/a&gt;, fsnotify 是一个文件夹监控应用，在&lt;a href=&#34;https://github.com/go-fsnotify/fsnotify/blob/master/example_test.go&#34;&gt;example_test.go&lt;/a&gt;中给的是最简单的实际应用&lt;/p&gt;
+
+&lt;p&gt;代码：&lt;/p&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>golang热编译工具</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>golang热编译工具
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            <p>之前用beego写api，感觉bee命令很好用，后来抛弃框架了，bee命令也不合适了，写程序编译每次都用 go run 感觉有点麻烦了，所以决定自己写一个热编译工具。</p>
+
+<p>热编译工具一般是通过检测文件变化，并触发相应编译命令。<br />
+现在已经有一些好用的热编译工具了，比如之前说的 <a href="https://github.com/beego/bee">bee</a> 工具，<a href="https://github.com/codeskyblue/fswatch">fswatch</a> 都还是挺不错的，可以研究一下他们的代码，如果想练手就自己写一个吧  o(-&ldquo;-)o</p>
+
+<p>用到的外部包只有一个 <a href="https://github.com/go-fsnotify/fsnotify">fsnotify</a>, fsnotify 是一个文件夹监控应用，在<a href="https://github.com/go-fsnotify/fsnotify/blob/master/example_test.go">example_test.go</a>中给的是最简单的实际应用</p>
+
+<p>代码：</p>
+
+<pre><code class="language-go">package main
+
+import (
+    fsnotify &quot;gopkg.in/fsnotify.v1&quot;
+    &quot;os&quot;
+    &quot;os/exec&quot;
+    &quot;path/filepath&quot;
+    &quot;strings&quot;
+    &quot;time&quot;
+    &quot;runtime&quot;
+    &quot;fmt&quot;
+    &quot;flag&quot;
+)
+
+var watchExts = []string{&quot;.go&quot;}
+
+var (
+    eventTime    = make(map[string]int64)
+    scheduleTime time.Time
+)
+
+
+const usage = `
+
+ Usage:
+
+    -h    显示当前帮助信息；
+    -f    指定main文件；
+    -o    执行编译后的可执行文件名；
+    -r    是否搜索子目录，默认为true；
+`
+type watch struct {
+
+    //热编译相关
+    appName   string    // 输出的程序文件
+    appCmd    *exec.Cmd // appName的命令行包装引用，方便结束其进程。
+    goCmdArgs []string  // 传递给go build的参数
+}
+
+func main(){
+
+    // 初始化flag
+    var showHelp, recursive bool
+    var outputName, mainFiles string
+
+    flag.BoolVar(&amp;showHelp, &quot;h&quot;, false, &quot;显示帮助信息&quot;)
+    flag.BoolVar(&amp;recursive, &quot;r&quot;, true, &quot;是否查找子目录&quot;)
+    flag.StringVar(&amp;outputName, &quot;o&quot;, &quot;&quot;, &quot;指定输出名称&quot;)
+    flag.StringVar(&amp;mainFiles, &quot;f&quot;, &quot;&quot;, &quot;指定需要编译的文件&quot;)
+    flag.Usage = func() {
+        fmt.Println(usage)
+    }
+
+    flag.Parse()
+
+    if showHelp {
+        flag.Usage()
+        return
+    }
+
+    wd, err := os.Getwd()
+    if err != nil {
+        ColorLog(&quot;[ERRO] 获取当前工作目录时，发生错误: [ %s ] \n&quot;, err)
+        return
+    }
+
+    // 初始化goCmd的参数
+    args := []string{&quot;build&quot;, &quot;-o&quot;, outputName}
+    if len(mainFiles) &gt; 0 {
+        args = append(args, mainFiles)
+    }
+
+    w := &amp;watch{
+        appName:   getAppName(outputName, wd),
+        goCmdArgs: args,
+    }
+
+    w.watcher(recursivePath(recursive, append(flag.Args(), wd)))
+
+    go w.build()
+
+    done := make(chan bool)
+    &lt;-done
+}
+
+func (w *watch) watcher(paths []string) {
+
+    ColorLog(&quot;[TRAC] 初始化文件监视器... \n&quot;)
+    //初始化监听器
+    watcher, err := fsnotify.NewWatcher()
+    if err != nil {
+        ColorLog(&quot;[ERRO] 初始化监视器失败: [ %s ] \n&quot;, err)
+        os.Exit(2)
+    }
+
+    go func() {
+        for {
+            select {
+            case event := &lt;-watcher.Events:
+                build := true
+                if !w.checkIfWatchExt(event.Name) {
+                    continue
+                }
+                if event.Op&amp;fsnotify.Chmod == fsnotify.Chmod {
+                    ColorLog(&quot;[SKIP] [ %s ] \n&quot;, event)
+                    continue
+                }
+
+                mt := w.getFileModTime(event.Name)
+                if t := eventTime[event.Name]; mt == t {
+                    ColorLog(&quot;[SKIP] [ %s ] \n&quot;, event.String())
+                    build = false
+                }
+
+                eventTime[event.Name] = mt
+
+            /*if(strings.HasSuffix(event.Name, &quot;.go&quot;)){
+                build = true
+            }*/
+
+                if build {
+                    go func() {
+                        scheduleTime = time.Now().Add(1 * time.Second)
+                        for {
+                            time.Sleep(scheduleTime.Sub(time.Now()))
+                            if time.Now().After(scheduleTime) {
+                                break
+                            }
+                            return
+                        }
+                        ColorLog(&quot;[TRAC] 触发编译事件: &lt; %s &gt; \n&quot;, event)
+                        w.build()
+                    }()
+                }
+
+            case err := &lt;-watcher.Errors:
+                ColorLog(&quot;[ERRO] 监控失败 [ %s ] \n&quot;, err)
+            }
+        }
+    }()
+
+    for _, path := range paths {
+        ColorLog(&quot;[TRAC] 监视文件夹: ( %s ) \n&quot;, path)
+        err = watcher.Add(path)
+        if err != nil {
+            ColorLog(&quot;[ERRO] 监视文件夹失败: [ %s ] \n&quot;, err)
+            os.Exit(2)
+        }
+    }
+}
+
+// 开始编译代码
+func (w *watch) build() {
+    ColorLog(&quot;[INFO] 编译代码... \n&quot;)
+
+    goCmd := exec.Command(&quot;go&quot;, w.goCmdArgs...)
+    goCmd.Stderr = os.Stderr
+    goCmd.Stdout = os.Stdout
+
+    if err := goCmd.Run(); err != nil {
+        ColorLog(&quot;[ERRO] 编译失败: [ %s ] \n&quot;, err)
+        return
+    }
+
+    ColorLog(&quot;[SUCC] 编译成功... \n&quot;)
+
+    w.restart()
+}
+
+func (w *watch) restart() {
+    defer func() {
+        if err := recover(); err != nil {
+            fmt.Println(&quot;Kill.recover -&gt; &quot;, err)
+        }
+    }()
+
+    if w.appCmd != nil &amp;&amp; w.appCmd.Process != nil {
+        ColorLog(&quot;[INFO] 终止旧进程... \n&quot;)
+        if err := w.appCmd.Process.Kill(); err != nil {
+            ColorLog(&quot;[ERROR] 终止进程失败 [ %s ] ...\n&quot;, err)
+        }
+        ColorLog(&quot;[SUCC] 旧进程被终止! \n&quot;)
+    }
+
+    ColorLog(&quot;[INFO] 重启 &lt; %s &gt; \n&quot;, w.appName)
+    if strings.Index(w.appName, &quot;./&quot;) == -1 {
+        w.appName = &quot;./&quot; + w.appName
+    }
+
+    ColorLog(&quot;[INFO] 启动新进程... \n&quot;)
+    w.appCmd = exec.Command(w.appName)
+    w.appCmd.Stderr = os.Stderr
+    w.appCmd.Stdout = os.Stdout
+    if err := w.appCmd.Start(); err != nil {
+        ColorLog(&quot;[ERRO] 启动进程时出错: [ %s ] \n&quot;, err)
+    }
+
+    ColorLog(&quot;[SUCC] 新进程已经启动...\n&quot;)
+}
+
+
+func (w *watch) checkIfWatchExt(name string) bool {
+    for _, s := range watchExts {
+        if strings.HasSuffix(name, s) {
+            return true
+        }
+    }
+    return false
+}
+
+func (w *watch) getFileModTime(path string) int64 {
+    path = strings.Replace(path, &quot;\\&quot;, &quot;/&quot;, -1)
+    f, err := os.Open(path)
+    if err != nil {
+
+        ColorLog(&quot;[ERRO] 文件打开失败 [ %s ]\n&quot;, err)
+        return time.Now().Unix()
+    }
+    defer f.Close()
+
+    fi, err := f.Stat()
+    if err != nil {
+        ColorLog(&quot;[ERRO] 获取不到文件信息 [ %s ]\n&quot;, err)
+        return time.Now().Unix()
+    }
+
+    return fi.ModTime().Unix()
+}
+
+func getAppName(outputName, wd string) string {
+    if len(outputName) == 0 {
+        outputName = filepath.Base(wd)
+    }
+    if runtime.GOOS == &quot;windows&quot; &amp;&amp; !strings.HasSuffix(outputName, &quot;.exe&quot;) {
+        outputName += &quot;.exe&quot;
+    }
+    if strings.IndexByte(outputName, '/') &lt; 0 || strings.IndexByte(outputName, filepath.Separator) &lt; 0 {
+        outputName = outputName
+    }
+
+    return outputName
+}
+
+// 根据recursive值确定是否递归查找paths每个目录下的子目录。
+func recursivePath(recursive bool, paths []string) []string {
+    if !recursive {
+        return paths
+    }
+
+    ret := []string{}
+
+    walk := func(path string, fi os.FileInfo, err error) error {
+        if err != nil {
+            ColorLog(&quot;[ERRO] 遍历监视目录错误: [ %s ] \n&quot;, err)
+        }
+
+        //(BUG):不能监视隐藏目录下的文件
+        if fi.IsDir() &amp;&amp; strings.Index(path, &quot;/.&quot;) &lt; 0 {
+            ret = append(ret, path)
+        }
+        return nil
+    }
+
+    for _, path := range paths {
+        if err := filepath.Walk(path, walk); err != nil {
+            ColorLog(&quot;[ERRO] 遍历监视目录错误: [ %s ] \n&quot;, err)
+        }
+    }
+
+    return ret
+}
+
+
+
+</code></pre>
+
+<p>代码比较简单，基本原理就是利用 fsnotify 监视文件变化，然后利用 os/exec 包去 编译、启动、终止进程</p>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2015/10/9/golang%e7%83%ad%e7%bc%96%e8%af%91%e5%b7%a5%e5%85%b7/">http://blog.golune.com//article/2015/10/9/golang热编译工具/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2015-10-09</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/golang">golang</a>&nbsp;
+                    
+                    <a href="/tag/%e7%83%ad%e7%bc%96%e8%af%91">热编译</a>&nbsp;
+                    
+                    <a href="/tag/%e8%87%aa%e5%8a%a8%e5%8c%96">自动化</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="d5973e00803e1926f313e50c72551659" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

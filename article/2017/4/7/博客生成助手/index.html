@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="golang,robot,机器人" />
+    <meta name="description" content="&lt;p&gt;之前写过一个静态博客生成器&lt;a href=&#34;https://github.com/num5/chca&#34;&gt;chca&lt;/a&gt;，用于生成自己的静态博客，方便部署在github上和自己的网站上。网上的静态博客生成器很多，但是总是找不到适合自己的，不是经常出错就是配置太繁琐了，所以就自己动手写了一个。&lt;/p&gt;
+
+&lt;p&gt;最近研究运维机器人，github开源的&lt;a href=&#34;https://hubot.github.com/&#34;&gt;Hubot&lt;/a&gt;可以非常方便的去创建一个自己的运维机器人，Hubot已经广泛应用于Github的日常运维工作，被称为最忙碌的员工。Hubot是基于Node.js、npm技术体系，使用CoffeeScript语言开发，出于对CoffeeScript的不了解，所以自己又造了个轮子，&lt;a href=&#34;https://github.com/num5/axiom&#34;&gt;Axiom&lt;/a&gt;，Axiom是一个机器人框架，参考Hubot并打算在其基础上一直扩展下去。&lt;/p&gt;
+
+&lt;p&gt;如果打算做一个稳定的运维机器人来帮助自己工作，还是建议使用Hubot&lt;/p&gt;
+
+&lt;h2&gt;用&lt;code&gt;Axiom&lt;/code&gt;做一个博客网站生成助手机器人&lt;/h2&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>博客生成助手</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>博客生成助手
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p><h4>文章导航:</h4><nav>
+<ul>
+<li>
+<ul>
+<li><a href="#toc_0">用<code>Axiom</code>做一个博客网站生成助手机器人</a>
+<ul>
+<li><a href="#toc_1">实现BlogListener监听器</a></li>
+<li><a href="#toc_2">集成chca博客生成器</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<p>之前写过一个静态博客生成器<a href="https://github.com/num5/chca">chca</a>，用于生成自己的静态博客，方便部署在github上和自己的网站上。网上的静态博客生成器很多，但是总是找不到适合自己的，不是经常出错就是配置太繁琐了，所以就自己动手写了一个。</p>
+
+<p>最近研究运维机器人，github开源的<a href="https://hubot.github.com/">Hubot</a>可以非常方便的去创建一个自己的运维机器人，Hubot已经广泛应用于Github的日常运维工作，被称为最忙碌的员工。Hubot是基于Node.js、npm技术体系，使用CoffeeScript语言开发，出于对CoffeeScript的不了解，所以自己又造了个轮子，<a href="https://github.com/num5/axiom">Axiom</a>，Axiom是一个机器人框架，参考Hubot并打算在其基础上一直扩展下去。</p>
+
+<p>如果打算做一个稳定的运维机器人来帮助自己工作，还是建议使用Hubot</p>
+
+<h2 id="toc_0">用<code>Axiom</code>做一个博客网站生成助手机器人</h2>
+
+<p>生成器可以使用任何一个静态网站生成工具，比如hexo、hugo等，这里使用的是<a href="https://github.com/num5/chca">chca</a></p>
+
+<p><code>Axiom</code>框架有两个主要接口需要实现，工作平台适配器<code>Adapter</code>和监控器<code>Monitor</code>，只要实现了这两个接口就可以实现一个机器人了。</p>
+
+<p><code>Axiom</code>默认实现了shell适配器。</p>
+
+<h3 id="toc_1">实现BlogListener监听器</h3>
+
+<pre><code class="language-go">// blog.go
+package main
+
+import (
+    &quot;github.com/num5/axiom&quot;
+    &quot;time&quot;
+)
+
+type BlogListener struct {}
+
+func (b *BlogListener) Handle() []*axiom.Listener {
+    return []*axiom.Listener{
+        {
+            Regex: &quot;时间|几点|time&quot;,
+            HandlerFunc: func(ctx *axiom.Context) {
+                layout := &quot;2006-01-02 15:04:05&quot;
+                t := time.Now()
+                c.Reply(&quot;现在时间: %s&quot;, t.Format(layout))
+            },
+        },
+    }
+}
+
+func main() {
+    // 创建机器人并给机器人命名
+    bot := axiom.New(&quot;Axiom&quot;)
+    // 添加shell适配器
+    bot.AddAdapter(axiom.NewShell(b))
+    // 注册blog监听器
+    bot.Register(&amp;BlogListener{})
+
+    // 运行机器人
+    b.Start()
+}
+</code></pre>
+
+<p>这样就实现了一个简单的聊天机器人，当你问她几点了的时候她就会把时间告诉你了，这里用的是shell适配器，还可以自己编写一个QQ或者微信甚至语音聊天适配器。</p>
+
+<h3 id="toc_2">集成chca博客生成器</h3>
+
+<p>刚才只是写了一个简单的可以回答时间的机器人，现在给机器人多加几个功能，比如下载chca</p>
+
+<pre><code class="language-go">
+type BlogListener struct {
+    // 工作文件夹
+    WorkerDir string
+    // chca博客生成器下载地址
+    ChcaUrl string
+    // theme下载地址
+    ThemeUrl string
+}
+
+func (b *BlogListener) updateChca(ctx *axiom.Context, m string) {
+
+    // 下载chca
+    downUrl := b.ChcaUrl
+    ctx.Reply(&quot;下载CHCA，下载链接【&quot; + downUrl + &quot;】...&quot;)
+
+    ctx.Reply(&quot;文件下载中，请稍后...&quot;)
+
+    tarFile, err := b.download(downUrl)
+    if err != nil {
+        ctx.Reply(&quot;下载失败，错误信息：&quot; + err.Error())
+        return
+    }
+
+    ctx.Reply(&quot;下载完成，开始解压缩...&quot;)
+
+    // 解压chca
+    err = targz.Extract(tarFile, b.WorkerDir)
+    if err != nil {
+        ctx.Reply(&quot;解压失败，错误信息：&quot; + err.Error())
+        return
+    }
+    ctx.Reply(&quot;解压缩完成，复制文件...\n&quot;)
+
+    if runtime.GOOS != &quot;windows&quot; {
+        cmd :=exec.Command(&quot;chmod&quot;, &quot;777&quot;,  b.WorkerDir+&quot;/chca&quot;)
+        if err := cmd.Start(); err != nil {
+            ctx.Reply(&quot;修改文件权限失败,请手动修改\n&quot;)
+            return
+        }
+    }
+
+    os.Remove(tarFile)
+
+    theme := path.Join(b.WorkerDir, &quot;theme&quot;, b.Theme)
+    if !Exist(theme) {
+        ctx.Reply(&quot;检测到博客模板不存在，下载默认模板...&quot;)
+
+        tarTheme, err := b.download(b.ThemeUrl)
+        if err != nil {
+            ctx.Reply(&quot;下载失败，错误信息：&quot; + err.Error())
+            return
+        }
+
+        ctx.Reply(&quot;模板下载完成，开始解压缩...&quot;)
+
+        // 解压
+        err = targz.Extract(tarTheme, b.WorkerDir + &quot;/theme/&quot;)
+        if err != nil {
+            ctx.Reply(&quot;解压模板文件失败，错误信息：&quot; + err.Error())
+            return
+        }
+        ctx.Reply(&quot;解压模板文件完成，复制文件...\n&quot;)
+        os.Remove(tarTheme)
+    }
+
+    ctx.Reply(m + &quot;成功&quot;)
+
+}
+
+// 下载
+func (b *BlogListener) download(downUrl string) (string, error) {
+    fileUrl, err := url.Parse(downUrl)
+    if err != nil {
+        return &quot;&quot;, err
+    }
+
+    filePath := fileUrl.Path
+
+    fbs := strings.Split(filePath, &quot;/&quot;)
+
+    fileName := fbs[len(fbs)-1]
+
+    _, cerr := curl.New(downUrl) // curl包使用的是github.com/Kenshin/curl
+
+    if cerr != nil {
+        return &quot;&quot;, cerr[0]
+    }
+
+    return fileName, nil
+}
+
+</code></pre>
+
+<p>给监听器添加下载命令</p>
+
+<pre><code class="language-go">func (b *BlogListener) Handle() []*axiom.Listener {
+    return []*axiom.Listener{
+        {
+            Regex: &quot;时间|几点|time&quot;,
+            HandlerFunc: func(ctx *axiom.Context) {
+                layout := &quot;2006-01-02 15:04:05&quot;
+                t := time.Now()
+                c.Reply(&quot;现在时间: %s&quot;, t.Format(layout))
+            },
+        },{
+            // 更新博客生成器
+            Regex: &quot;更新chca|更新博客生成器|下载chca|下载博客生成器&quot;,
+            HandlerFunc: func(ctx *axiom.Context) {
+                var m string
+                if strings.Contains(ctx.Matches[0], &quot;更新&quot;) {
+                    m = &quot;更新&quot;
+                }
+                if strings.Contains(ctx.Matches[0], &quot;下载&quot;) {
+                    m = &quot;下载&quot;
+                }
+                b.updateChca(ctx, m)
+            },
+        },
+    }
+}
+
+func main() {
+    blogListener := &amp;blog.BlogListener{
+        WorkerDir: &quot;/data/chca&quot;,
+        ChcaUrl: &quot;http://golune.qiniudn.com/chca-linux64.tar.gz&quot;,
+        ThemeUrl: &quot;http://golune.qiniudn.com/default-theme.tar.gz&quot;,
+    }
+
+
+    // 创建机器人并给机器人命名
+    bot := axiom.New(&quot;Axiom&quot;)
+    // 添加shell适配器
+    bot.AddAdapter(axiom.NewShell(b))
+    // 注册blog监听器
+    bot.Register(blogListener)
+
+    // 运行机器人
+    b.Start()
+}
+
+</code></pre>
+
+<p>这样当你输入“下载chca”命令的时候就可以把chca下载并解压到工作文件夹了，接下来就可以使用chca来生成博客了</p>
+
+<p>接下来就简单了，我们可以用chca创建markdown文件、编译博客、打开chca内置服务器等等</p>
+
+<p>比如编译博客</p>
+
+<pre><code class="language-go">func (b *BlogListener) compileBlog(ctx *axiom.Context) {
+
+    cmd := exec.Command(b.WorkerDir+&quot;/chca&quot;, &quot;compile&quot;)
+    cmd.Dir = b.WorkerDir
+    if err := cmd.Start(); err != nil {
+        ctx.Reply(&quot;博客编译错误：%s&quot;, err.Error())
+        return
+    }
+
+    ctx.Reply(&quot;编译成功，请登录 http://&quot; + b.Host + &quot; 查看&quot;)
+}
+</code></pre>
+
+<p>在<code>Handle</code>方法里添加命令</p>
+
+<pre><code class="language-go">    // 编译博客xia
+    Regex: &quot;编译博客|博客编译|更新博客|博客更新|编译markdown|编译MARKDOWN|markdown编译|MARKDOWN编译&quot;,
+    HandlerFunc: func(ctx *axiom.Context) {
+        b.compileBlog(ctx)
+    },
+</code></pre>
+
+<p>当然还可以做一个文件上传的命令用于上传markdown文件或者任何你想加的命令</p>
+
+<p>练习代码：<a href="https://github.com/num5/staff">https://github.com/num5/staff</a></p>
+
+<blockquote>
+<p>CHCA<br />
+<a href="https://github.com/num5/chca">https://github.com/num5/chca</a></p>
+</blockquote>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2017/4/7/%e5%8d%9a%e5%ae%a2%e7%94%9f%e6%88%90%e5%8a%a9%e6%89%8b/">http://blog.golune.com//article/2017/4/7/博客生成助手/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2017-04-07</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/golang">golang</a>&nbsp;
+                    
+                    <a href="/tag/robot">robot</a>&nbsp;
+                    
+                    <a href="/tag/%e6%9c%ba%e5%99%a8%e4%ba%ba">机器人</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="a7782b5f63d92c22e186f0bfe2dad739" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

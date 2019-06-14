@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="golang,channel" />
+    <meta name="description" content="&lt;p&gt;【网上整理】&lt;/p&gt;
+
+&lt;h4&gt;一、Golang并发基础理论&lt;/h4&gt;
+
+&lt;p&gt;Golang在并发设计方面参考了 &lt;strong&gt;C.A.R Hoare&lt;/strong&gt; 的CSP，即Communicating Sequential Processes并发模型理论。但就像John Graham-Cumming所说的那样，多数Golang程序员或爱好者仅仅停留在“知道”这一层次，理解CSP理论的并不多，毕竟多数程序员是搞工程 的。不过要想系统学习CSP的人可以从&lt;a href=&#34;http://www.usingcsp.com/&#34;&gt;这里&lt;/a&gt;下载到CSP论文的最新版本。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Communicating_sequential_processes&#34;&gt;维基百科&lt;/a&gt;中概要罗列了CSP模型与另外一种并发模型Actor模型的区别：&lt;/p&gt;" />
+
+    <link href="http://cdn.bootcss.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>Golang Channel 整理</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://blog.golune.com">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2017. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/num5/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>Golang Channel 整理
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p>【网上整理】</p>
+
+<p><h4>文章导航:</h4><nav>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#toc_0">一、Golang并发基础理论</a></li>
+<li><a href="#toc_1">二、Go Channel基本操作语法</a></li>
+<li><a href="#toc_2">三、Channel用作信号(Signal)的场景</a>
+<ul>
+<li><a href="#toc_3">1、等待一个事件(Event)</a></li>
+<li><a href="#toc_4">2、协同多个Goroutines</a></li>
+<li><a href="#toc_5">3、Select</a></li>
+</ul></li>
+<li><a href="#toc_6">四、隐藏状态</a>
+<ul>
+<li><a href="#toc_7">1、例子：唯一的ID服务</a></li>
+</ul></li>
+<li><a href="#toc_8">五、默认情况</a>
+<ul>
+<li><a href="#toc_9">1、select  for non-blocking receive</a></li>
+<li><a href="#toc_10">2、select for non-blocking send</a></li>
+</ul></li>
+<li><a href="#toc_11">六、Nil Channels</a>
+<ul>
+<li><a href="#toc_12">1、nil channels阻塞</a></li>
+<li><a href="#toc_13">2、nil channel在select中很有用</a></li>
+</ul></li>
+<li><a href="#toc_14">七、Timers</a>
+<ul>
+<li><a href="#toc_15">1、超时机制Timeout</a></li>
+<li><a href="#toc_16">2、心跳HeartBeart</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<h4 id="toc_0">一、Golang并发基础理论</h4>
+
+<p>Golang在并发设计方面参考了 <strong>C.A.R Hoare</strong> 的CSP，即Communicating Sequential Processes并发模型理论。但就像John Graham-Cumming所说的那样，多数Golang程序员或爱好者仅仅停留在“知道”这一层次，理解CSP理论的并不多，毕竟多数程序员是搞工程 的。不过要想系统学习CSP的人可以从<a href="http://www.usingcsp.com/">这里</a>下载到CSP论文的最新版本。</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Communicating_sequential_processes">维基百科</a>中概要罗列了CSP模型与另外一种并发模型Actor模型的区别：</p>
+
+<p>Actor模型广义上讲与CSP模型很相似。但两种模型就提供的原语而言，又有一些根本上的不同之处：</p>
+
+<ul>
+<li>– CSP模型处理过程是匿名的，而Actor模型中的Actor则具有身份标识。<br /></li>
+<li>– CSP模型的消息传递在收发消息进程间包含了一个交会点，即发送方只能在接收方准备好接收消息时才能发送消息。相反，actor模型中的消息传递是异步 的，即消息的发送和接收无需在同一时间进行，发送方可以在接收方准备好接收消息前将消息发送出去。这两种方案可以认为是彼此对偶的。在某种意义下，基于交 会点的系统可以通过构造带缓冲的通信的方式来模拟异步消息系统。而异步系统可以通过构造带消息/应答协议的方式来同步发送方和接收方来模拟交会点似的通信 方式。<br /></li>
+<li>– CSP使用显式的Channel用于消息传递，而Actor模型则将消息发送给命名的目的Actor。这两种方法可以被认为是对偶的。某种意义下，进程可 以从一个实际上拥有身份标识的channel接收消息，而通过将actors构造成类Channel的行为模式也可以打破actors之间的名字耦合。<br />
+<br /></li>
+</ul>
+
+<h4 id="toc_1">二、Go Channel基本操作语法</h4>
+
+<p>Go Channel的基本操作语法如下：</p>
+
+<pre><code class="language-go">c := make(chan bool) //创建一个无缓冲的bool型Channel 
+c &lt;- x        //向一个Channel发送一个值
+&lt;- c          //从一个Channel中接收一个值
+x = &lt;- c      //从Channel c接收一个值并将其存储到x中
+x, ok = &lt;- c  //从Channel接收一个值，如果channel关闭了或没有数据，那么ok将被置为false
+</code></pre>
+
+<p>不带缓冲的Channel兼具通信和同步两种特性，颇受青睐。</p>
+
+<h4 id="toc_2">三、Channel用作信号(Signal)的场景</h4>
+
+<h5 id="toc_3">1、等待一个事件(Event)</h5>
+
+<p>等待一个事件，有时候通过close一个Channel就足够了。例如：</p>
+
+<pre><code class="language-go">//testwaitevent1.go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+        fmt.Println(&quot;Begin doing something!&quot;)
+        c := make(chan bool)
+        go func() {
+                fmt.Println(&quot;Doing something…&quot;)
+                close(c)
+        }()
+        &lt;-c
+        fmt.Println(&quot;Done!&quot;)
+}
+</code></pre>
+
+<p>这里main goroutine通过&rdquo;&lt;-c&rdquo;来等待sub goroutine中的“完成事件”，sub goroutine通过close channel促发这一事件。当然也可以通过向Channel写入一个bool值的方式来作为事件通知。main goroutine在channel c上没有任何数据可读的情况下会阻塞等待。</p>
+
+<p>关于输出结果：</p>
+
+<p>根据《Go memory model》中关于close channel与recv from channel的order的定义：The closing of a channel happens before a receive that returns a zero value because the channel is closed.</p>
+
+<p>我们可以很容易判断出上面程序的输出结果：</p>
+
+<pre><code class="language-bash">Begin doing something!
+Doing something…
+Done!
+</code></pre>
+
+<p>如果将close&copy;换成c&lt;-true，则根据《Go memory model》中的定义：A receive from an unbuffered channel happens before the send on that channel completes.<br />
+&ldquo;&lt;-c&rdquo;要先于&rdquo;c&lt;-true&rdquo;完成，但也不影响日志的输出顺序，输出结果仍为上面三行。</p>
+
+<h5 id="toc_4">2、协同多个Goroutines</h5>
+
+<p>同上，close channel还可以用于协同多个Goroutines，比如下面这个例子，我们创建了100个Worker Goroutine，这些Goroutine在被创建出来后都阻塞在&rdquo;&lt;-start&rdquo;上，直到我们在main goroutine中给出开工的信号：&rdquo;close(start)&ldquo;，这些goroutines才开始真正的并发运行起来。</p>
+
+<pre><code class="language-go">//testwaitevent2.go
+package main
+
+import &quot;fmt&quot;
+
+func worker(start chan bool, index int) {
+        &lt;-start
+        fmt.Println(&quot;This is Worker:&quot;, index)
+}
+
+func main() {
+        start := make(chan bool)
+        for i := 1; i &lt;= 100; i++ {
+                go worker(start, i)
+        }
+        close(start)
+        select {} //deadlock we expected
+}
+</code></pre>
+
+<h5 id="toc_5">3、Select</h5>
+
+<p>【select的基本操作】<br />
+select是Go语言特有的操作，使用select我们可以同时在多个channel上进行发送/接收操作。下面是select的基本操作。</p>
+
+<pre><code class="language-go">select {
+case x := &lt;- somechan:
+    // … 使用x进行一些操作
+
+case y, ok := &lt;- someOtherchan:
+    // … 使用y进行一些操作，
+    // 检查ok值判断someOtherchan是否已经关闭
+
+case outputChan &lt;- z:
+    // … z值被成功发送到Channel上时
+
+default:
+    // … 上面case均无法通信时，执行此分支
+}
+</code></pre>
+
+<blockquote>
+<p>【惯用法：for/select】</p>
+</blockquote>
+
+<p>我们在使用select时很少只是对其进行一次evaluation，我们常常将其与for {}结合在一起使用，并选择适当时机从for{}中退出。</p>
+
+<pre><code class="language-go">for {
+        select {
+        case x := &lt;- somechan:
+            // … 使用x进行一些操作
+
+        case y, ok := &lt;- someOtherchan:
+            // … 使用y进行一些操作，
+            // 检查ok值判断someOtherchan是否已经关闭
+
+        case outputChan &lt;- z:
+            // … z值被成功发送到Channel上时
+
+        default:
+            // … 上面case均无法通信时，执行此分支
+        }
+}
+</code></pre>
+
+<blockquote>
+<p>【终结workers】</p>
+</blockquote>
+
+<p>下面是一个常见的终结sub worker goroutines的方法，每个worker goroutine通过select监视一个die channel来及时获取main goroutine的退出通知。</p>
+
+<pre><code class="language-go">//testterminateworker1.go
+package main
+
+import (
+    &quot;fmt&quot;
+    &quot;time&quot;
+)
+
+func worker(die chan bool, index int) {
+    fmt.Println(&quot;Begin: This is Worker:&quot;, index)
+    for {
+        select {
+        //case xx：
+            //做事的分支
+        case &lt;-die:
+            fmt.Println(&quot;Done: This is Worker:&quot;, index)
+            return
+        }
+    }
+}
+
+func main() {
+    die := make(chan bool)
+
+    for i := 1; i &lt;= 100; i++ {
+        go worker(die, i)
+    }
+
+    time.Sleep(time.Second * 5)
+    close(die)
+    select {} //deadlock we expected
+}
+</code></pre>
+
+<blockquote>
+<p>【终结验证】</p>
+</blockquote>
+
+<p>有时候终结一个worker后，main goroutine想确认worker routine是否真正退出了，可采用下面这种方法：</p>
+
+<pre><code class="language-go">//testterminateworker2.go
+package main
+
+import (
+    &quot;fmt&quot;
+    //&quot;time&quot;
+)
+
+func worker(die chan bool) {
+    fmt.Println(&quot;Begin: This is Worker&quot;)
+    for {
+        select {
+        //case xx：
+        //做事的分支
+        case &lt;-die:
+            fmt.Println(&quot;Done: This is Worker&quot;)
+            die &lt;- true
+            return
+        }
+    }
+}
+
+func main() {
+    die := make(chan bool)
+
+    go worker(die)
+
+    die &lt;- true
+    &lt;-die
+    fmt.Println(&quot;Worker goroutine has been terminated&quot;)
+}
+</code></pre>
+
+<blockquote>
+<p>【关闭的Channel永远不会阻塞】</p>
+</blockquote>
+
+<p>下面演示在一个已经关闭了的channel上读写的结果：</p>
+
+<pre><code class="language-go">//testoperateonclosedchannel.go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+        cb := make(chan bool)
+        close(cb)
+        x := &lt;-cb
+        fmt.Printf(&quot;%#v\n&quot;, x)
+
+        x, ok := &lt;-cb
+        fmt.Printf(&quot;%#v %#v\n&quot;, x, ok)
+
+        ci := make(chan int)
+        close(ci)
+        y := &lt;-ci
+        fmt.Printf(&quot;%#v\n&quot;, y)
+
+        cb &lt;- true
+}
+</code></pre>
+
+<pre><code class="language-bash">$go run testoperateonclosedchannel.go
+false
+false false
+0
+panic: runtime error: send on closed channel
+</code></pre>
+
+<p>可以看到在一个已经close的unbuffered channel上执行读操作，回返回channel对应类型的零值，比如bool型channel返回false，int型channel返回0。但向close的channel写则会触发panic。不过无论读写都不会导致阻塞。</p>
+
+<blockquote>
+<p>【关闭带缓存的channel】</p>
+</blockquote>
+
+<p>将unbuffered channel换成buffered channel会怎样？我们看下面例子：</p>
+
+<pre><code class="language-go">//testclosedbufferedchannel.go
+package main
+
+import &quot;fmt&quot;
+
+func main() {
+        c := make(chan int, 3)
+        c &lt;- 15
+        c &lt;- 34
+        c &lt;- 65
+        close(c)
+        fmt.Printf(&quot;%d\n&quot;, &lt;-c)
+        fmt.Printf(&quot;%d\n&quot;, &lt;-c)
+        fmt.Printf(&quot;%d\n&quot;, &lt;-c)
+        fmt.Printf(&quot;%d\n&quot;, &lt;-c)
+
+        c &lt;- 1
+}
+</code></pre>
+
+<pre><code class="language-bash">$go run testclosedbufferedchannel.go
+15
+34
+65
+0
+panic: runtime error: send on closed channel
+</code></pre>
+
+<p>可以看出带缓冲的channel略有不同。尽管已经close了，但我们依旧可以从中读出关闭前写入的3个值。第四次读取时，则会返回该channel类型的零值。向这类channel写入操作也会触发panic。</p>
+
+<blockquote>
+<p>【range】</p>
+</blockquote>
+
+<p>Golang中的range常常和channel并肩作战，它被用来从channel中读取所有值。下面是一个简单的实例：</p>
+
+<pre><code class="language-go">//testrange.go
+package main
+
+import &quot;fmt&quot;
+
+func generator(strings chan string) {
+        strings &lt;- &quot;Five hour's New York jet lag&quot;
+        strings &lt;- &quot;and Cayce Pollard wakes in Camden Town&quot;
+        strings &lt;- &quot;to the dire and ever-decreasing circles&quot;
+        strings &lt;- &quot;of disrupted circadian rhythm.&quot;
+        close(strings)
+}
+
+func main() {
+        strings := make(chan string)
+        go generator(strings)
+        for s := range strings {
+                fmt.Printf(&quot;%s\n&quot;, s)
+        }
+        fmt.Printf(&quot;\n&quot;)
+}
+</code></pre>
+
+<h4 id="toc_6">四、隐藏状态</h4>
+
+<p>下面通过一个例子来演示一下channel如何用来隐藏状态：</p>
+
+<h5 id="toc_7">1、例子：唯一的ID服务</h5>
+
+<pre><code class="language-go">//testuniqueid.go
+package main
+
+import &quot;fmt&quot;
+
+func newUniqueIDService() &lt;-chan string {
+        id := make(chan string)
+        go func() {
+                var counter int64 = 0
+                for {
+                        id &lt;- fmt.Sprintf(&quot;%x&quot;, counter)
+                        counter += 1
+                }
+        }()
+        return id
+}
+func main() {
+        id := newUniqueIDService()
+        for i := 0; i &lt; 10; i++ {
+                fmt.Println(&lt;-id)
+        }
+}
+</code></pre>
+
+<pre><code class="language-bash">$ go run testuniqueid.go
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+</code></pre>
+
+<p>newUniqueIDService通过一个channel与main goroutine关联，main goroutine无需知道uniqueid实现的细节以及当前状态，只需通过channel获得最新id即可。</p>
+
+<h4 id="toc_8">五、默认情况</h4>
+
+<p>我想这里John Graham-Cumming主要是想告诉我们select的default分支的实践用法。</p>
+
+<h5 id="toc_9">1、select  for non-blocking receive</h5>
+
+<p>idle:= make(chan []byte, 5) //用一个带缓冲的channel构造一个简单的队列</p>
+
+<pre><code class="language-go">select {
+case b = &lt;-idle:  //尝试从idle队列中读取
+    …
+default:  //队列空，分配一个新的buffer
+        makes += 1
+        b = make([]byte, size)
+}
+</code></pre>
+
+<h5 id="toc_10">2、select for non-blocking send</h5>
+
+<p>idle:= make(chan []byte, 5) //用一个带缓冲的channel构造一个简单的队列</p>
+
+<pre><code class="language-go">select {
+case idle &lt;- b: //尝试向队列中插入一个buffer
+        //…
+default: //队列满？
+
+}
+</code></pre>
+
+<h4 id="toc_11">六、Nil Channels</h4>
+
+<h5 id="toc_12">1、nil channels阻塞</h5>
+
+<p>对一个没有初始化的channel进行读写操作都将发生阻塞，例子如下：</p>
+
+<pre><code class="language-go">package main
+
+func main() {
+        var c chan int
+        &lt;-c
+}
+</code></pre>
+
+<pre><code class="language-bash">$go run testnilchannel.go
+fatal error: all goroutines are asleep – deadlock!
+</code></pre>
+
+<pre><code class="language-go">package main
+
+func main() {
+        var c chan int
+        c &lt;- 1
+}
+</code></pre>
+
+<pre><code class="language-go">$go run testnilchannel.go
+fatal error: all goroutines are asleep – deadlock!
+</code></pre>
+
+<h5 id="toc_13">2、nil channel在select中很有用</h5>
+
+<p>看下面这个例子：</p>
+
+<pre><code class="language-go">//testnilchannel_bad.go
+package main
+
+import &quot;fmt&quot;
+import &quot;time&quot;
+
+func main() {
+        var c1, c2 chan int = make(chan int), make(chan int)
+        go func() {
+                time.Sleep(time.Second * 5)
+                c1 &lt;- 5
+                close(c1)
+        }()
+
+        go func() {
+                time.Sleep(time.Second * 7)
+                c2 &lt;- 7
+                close(c2)
+        }()
+
+        for {
+                select {
+                case x := &lt;-c1:
+                        fmt.Println(x)
+                case x := &lt;-c2:
+                        fmt.Println(x)
+                }
+        }
+        fmt.Println(&quot;over&quot;)
+}
+</code></pre>
+
+<p>我们原本期望程序交替输出5和7两个数字，但实际的输出结果却是：</p>
+
+<pre><code class="language-bash">5
+0
+0
+0
+</code></pre>
+
+<p>… … 0死循环</p>
+
+<p>再仔细分析代码，原来select每次按case顺序evaluate：</p>
+
+<ul>
+<li>– 前5s，select一直阻塞；<br /></li>
+<li>– 第5s，c1返回一个5后被close了，“case x := &lt;-c1”这个分支返回，select输出5，并重新select<br /></li>
+<li>– 下一轮select又从“case x := &lt;-c1”这个分支开始evaluate，由于c1被close，按照前面的知识，close的channel不会阻塞，我们会读出这个 channel对应类型的零值，这里就是0；select再次输出0；这时即便c2有值返回，程序也不会走到c2这个分支<br /></li>
+<li>– 依次类推，程序无限循环的输出0<br />
+<br /></li>
+</ul>
+
+<p>我们利用nil channel来改进这个程序，以实现我们的意图，代码如下：</p>
+
+<pre><code class="language-go">//testnilchannel.go
+package main
+
+import &quot;fmt&quot;
+import &quot;time&quot;
+
+func main() {
+        var c1, c2 chan int = make(chan int), make(chan int)
+        go func() {
+                time.Sleep(time.Second * 5)
+                c1 &lt;- 5
+                close(c1)
+        }()
+
+        go func() {
+                time.Sleep(time.Second * 7)
+                c2 &lt;- 7
+                close(c2)
+        }()
+
+        for {
+                select {
+                case x, ok := &lt;-c1:
+                        if !ok {
+                                c1 = nil
+                        } else {
+                                fmt.Println(x)
+                        }
+                case x, ok := &lt;-c2:
+                        if !ok {
+                                c2 = nil
+                        } else {
+                                fmt.Println(x)
+                        }
+                }
+                if c1 == nil &amp;&amp; c2 == nil {
+                        break
+                }
+        }
+        fmt.Println(&quot;over&quot;)
+}
+</code></pre>
+
+<pre><code class="language-bash">$go run testnilchannel.go
+5
+7
+over
+</code></pre>
+
+<p>可以看出：通过将已经关闭的channel置为nil，下次select将会阻塞在该channel上，使得select继续下面的分支evaluation。</p>
+
+<h4 id="toc_14">七、Timers</h4>
+
+<h5 id="toc_15">1、超时机制Timeout</h5>
+
+<p>带超时机制的select是常规的tip，下面是示例代码，实现30s的超时select：</p>
+
+<pre><code class="language-go">func worker(start chan bool) {
+        timeout := time.After(30 * time.Second)
+        for {
+                select {
+                     // … do some stuff
+                case &lt;- timeout:
+                    return
+                }
+        }
+}
+</code></pre>
+
+<h5 id="toc_16">2、心跳HeartBeart</h5>
+
+<p>与timeout实现类似，下面是一个简单的心跳select实现：</p>
+
+<pre><code class="language-go">func worker(start chan bool) {
+        heartbeat := time.Tick(30 * time.Second)
+        for {
+                select {
+                     // … do some stuff
+                case &lt;- heartbeat:
+                    //… do heartbeat stuff
+                }
+        }
+}
+</code></pre>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://blog.golune.com//article/2015/9/13/golang-channel-%e6%95%b4%e7%90%86/">http://blog.golune.com//article/2015/9/13/golang-channel-整理/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2015-09-13</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/golang">golang</a>&nbsp;
+                    
+                    <a href="/tag/channel">channel</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="0b37c02adc7c981e95efa1529c89750d" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="http://cdn.bootcss.com/highlight.js/8.9.1/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>
