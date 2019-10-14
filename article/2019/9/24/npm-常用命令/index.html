@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="js,npm" />
+    <meta name="description" content="&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;npm init&lt;/code&gt; 在此目录生成package.json文件，可以添加 &lt;code&gt;-y&lt;/code&gt; | &lt;code&gt;--yes&lt;/code&gt; 参数则默认所有配置为默认yes&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;npm install &amp;lt;package&amp;gt; -g&lt;/code&gt; 全局安装&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;npm install --production&lt;/code&gt; 安装&lt;code&gt;dependencies&lt;/code&gt;，不包含&lt;code&gt;devDependencies&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;npm install &amp;lt;package&amp;gt;&lt;/code&gt; 默认使用–save 参数，如果不想保存到&lt;code&gt;package.json&lt;/code&gt;中，可以添加&lt;code&gt;--no-save&lt;/code&gt;参数；还可以指定&lt;code&gt;–save-dev&lt;/code&gt; 或 &lt;code&gt;-g&lt;/code&gt;参数&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;" />
+
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/highlight.js/9.15.8/styles/solarized-dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>npm 常用命令</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://chca.me">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/js">
+                    js
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e4%bb%a3%e7%a0%81%e7%89%87%e6%ae%b5">
+                    代码片段
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%8e%86%e5%8f%b2">
+                    历史
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%ae%97%e6%95%99">
+                    宗教
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2020. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/ghaoo/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>npm 常用命令
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p><h4>文章导航:</h4><nav>
+</nav></p>
+
+<ul>
+<li><p><code>npm init</code> 在此目录生成package.json文件，可以添加 <code>-y</code> | <code>--yes</code> 参数则默认所有配置为默认yes</p></li>
+
+<li><p><code>npm install &lt;package&gt; -g</code> 全局安装</p></li>
+
+<li><p><code>npm install --production</code> 安装<code>dependencies</code>，不包含<code>devDependencies</code></p></li>
+
+<li><p><code>npm install &lt;package&gt;</code> 默认使用–save 参数，如果不想保存到<code>package.json</code>中，可以添加<code>--no-save</code>参数；还可以指定<code>–save-dev</code> 或 <code>-g</code>参数</p></li>
+
+<li><p><code>npm uninstall &lt;package&gt;</code> 卸载依赖包， 默认使用<code>–save</code>参数，即从<code>package.json</code>中移除</p></li>
+
+<li><p><code>npm ls [-g][--depth=0]</code> 查看当前目录或全局的依赖包，可指定层级为<code>0</code></p></li>
+
+<li><p><code>npm outdated</code> 查看当前过期依赖，其中<code>current</code>显示当前安装版本，<code>latest</code>显示依赖包的最新版本，<code>wanted</code>显示我们可以升级到可以不破坏当前代码的版本</p></li>
+
+<li><p><code>npm root -g</code> 查看全局安装地址</p></li>
+
+<li><p><code>npm update &lt;package&gt;</code> 升级依赖包版本</p></li>
+
+<li><p><code>npm ll[la][--depth=0]</code> 查看依赖包信息</p></li>
+
+<li><p><code>npm list &lt;package&gt;</code>查看依赖的当前版本</p></li>
+
+<li><p><code>npm search &lt;string&gt;</code> 查找包含该字符串的依赖包</p></li>
+
+<li><p><code>npm view &lt;package&gt; [field][--json]</code>列出依赖信息，包括历史版本，可以指定field来查看某个具体信息，比如（versions) 可以添加<code>–json</code>参数输出全部结果</p></li>
+
+<li><p><code>npm home &lt;package&gt;</code> 在浏览器端查看项目（项目主页）</p></li>
+
+<li><p><code>npm repo &lt;package&gt;</code> 浏览器端打开项目地址（GitHub）</p></li>
+
+<li><p><code>npm docs &lt;packge&gt;</code> 查看项目文档</p></li>
+
+<li><p><code>npm bugs &lt;packge&gt;</code> 查看项目bug</p></li>
+
+<li><p><code>npm prune</code> 移除当前不在<code>package.json</code>中但是存在<code>node_modules</code>中的依赖</p></li>
+
+<li><p><code>npm link</code> 不使用<code>npm install</code> 而连接某个依赖包，通常用作开发本地依赖包</p></li>
+</ul>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://chca.me/article/2019/9/24/npm-%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4/">http://chca.me/article/2019/9/24/npm-常用命令/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2019-09-24</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/js">js</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/js">js</a>&nbsp;
+                    
+                    <a href="/tag/npm">npm</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="267bf646e217076831b8b54f7c67b741" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

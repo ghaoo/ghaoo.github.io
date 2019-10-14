@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="git,问题" />
+    <meta name="description" content="&lt;p&gt;今天使用git的时候莫名出现了一个问题&lt;br /&gt;
+```bash&lt;br /&gt;
+$ git push&lt;br /&gt;
+fatal: You are not currently on a branch.&lt;br /&gt;
+To push the history leading to the current (detached HEAD)&lt;br /&gt;
+state now, use&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git push origin HEAD:&amp;lt;name-of-remote-branch&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;" />
+
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/highlight.js/9.15.8/styles/solarized-dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>GIT 问题记录--detached HEAD的解决方法</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://chca.me">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/js">
+                    js
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e4%bb%a3%e7%a0%81%e7%89%87%e6%ae%b5">
+                    代码片段
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%8e%86%e5%8f%b2">
+                    历史
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%ae%97%e6%95%99">
+                    宗教
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2020. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/ghaoo/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>GIT 问题记录--detached HEAD的解决方法
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            <p>今天使用git的时候莫名出现了一个问题</p>
+
+<pre><code class="language-bash">$ git push
+fatal: You are not currently on a branch.
+To push the history leading to the current (detached HEAD)
+state now, use
+
+    git push origin HEAD:&lt;name-of-remote-branch&gt;
+
+</code></pre>
+
+<p>这什么情况？</p>
+
+<p>回想昨天做的git操作，好像强制更新了一次</p>
+
+<pre><code class="language-bash">git fetch --all
+git reset --hard origin/master
+</code></pre>
+
+<p>使用了上面两条命令。但是是不是造成 <code>detached HEAD</code> 的原因就不知道了（git小白&hellip;）。</p>
+
+<p>于是从网上查了一下 <code>detached HEAD</code>,</p>
+
+<blockquote>
+<p>detached head是一种HEAD指针指向了某一个具体的 commit id，而不是分支的情况。在这个状态下进行的commit不会对你的远程分支产生影响。</p>
+</blockquote>
+
+<p>解决办法也非常简单，把分支指向master就可以了：</p>
+
+<pre><code class="language-bash">$ git checkout master
+Previous HEAD position was a3b5480... haha
+Switched to branch 'master'
+Your branch is behind 'origin/master' by 4 commits, and can be fast-forwarded.
+  (use &quot;git pull&quot; to update your local branch)
+
+</code></pre>
+
+<h3>关于HEAD</h3>
+
+<p>什么是 <code>HEAD</code>,在网上找到了这样的答案：</p>
+
+<blockquote>
+<p>转载 <a href="http://stackoverflow.com/questions/2304087/what-is-head-in-git">http://stackoverflow.com/questions/2304087/what-is-head-in-git</a> 上的回答</p>
+
+<p>你可以认为 HEAD(大写)是&rdquo;current branch&rdquo;(当下的分支)。当你用git checkout切换分支的时候，HEAD 修订版本重新指向新的分支。有的时候HEAD会指向一个没有分支名字的修订版本，这种情况叫”detached HEAD“</p>
+
+<p>head(小写)是commit对象的引用，每个head都有一个名字（分支名字或者标签名字等等），但是默认情况下，每个叫master的repository都会有一个head, 一个repository可以包含任意数量的head。在任何时候，只要这个head被选择成为”current head“，那么这个head就成了HEAD,总是大写</p>
+</blockquote>
+
+<p>链接： <a href="https://segmentfault.com/q/1010000000770497">Git 中 HEAD 是什么东西，为什么会出现在分支里？</a></p>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://chca.me/article/2017/12/8/git-%e9%97%ae%e9%a2%98%e8%ae%b0%e5%bd%95--detached-head%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95/">http://chca.me/article/2017/12/8/git-问题记录--detached-head的解决方法/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2017-12-08</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/git">git</a>&nbsp;
+                    
+                    <a href="/tag/%e9%97%ae%e9%a2%98">问题</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="b1f63446d46b5bb99fa70dd3cba37043" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>

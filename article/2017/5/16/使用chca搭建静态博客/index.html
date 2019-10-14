@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="chca" />
+    <meta name="description" content="&lt;p&gt;chca是一个使用golang开发的静态博客生成器，简单、方便、快捷，抛弃每次都需要使用命令编译文件，采用文件监听方式编译，作者只需把markdown文件放到配置中的markdown文件夹下就能自动生成html了。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;chca支持全平台&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;如果你是个不懂程序的小白，chca更加适合你，只需要修改少量配置就可以搭建一个属于自己的博客了。最重要的是，如果你没有自己的服务器，可以将其搭建在github pages上，完全免费的哦。&lt;/p&gt;
+
+&lt;p&gt;关于为什么要开博客？可以看看这篇文章&lt;a href=&#34;https://zhuanlan.zhihu.com/p/19743861&#34;&gt;《为什么你要写博客？》&lt;/a&gt;&lt;/p&gt;" />
+
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/highlight.js/9.15.8/styles/solarized-dark.min.css" rel="stylesheet">
+    <link href="/assets/css/basic.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <title>使用chca搭建静态博客</title>
+</head>
+<style type="text/css">
+    h1,h2,h3 {
+        font-size: 22px;
+    }
+    ul li {
+        list-style: none;
+    }
+</style>
+<body style="zoom: 1;">
+
+
+<div class="sidebar">
+
+    <div class="logo-title">
+        <div class="title animated fadeInDown">
+            <img src="/assets/avatar.jpg" style="width:127px;border-radius: 50%;">
+            
+            <hgroup>
+                <h1 class="header-author"><a href="http://chca.me">我的笔记</a></h1>
+            </hgroup>
+
+            <div class="description animated fadeInDown">
+                <p>记录平时收集的笔记</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links animated fadeInDown">
+        <li><a href="https://github.com/ghaoo"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="http://weibo.com/golune"><i class="fa fa-weibo"></i></a>
+        </li>
+    </ul>
+
+    <div class="cate-list animated fadeInDown">
+        分类：
+        
+
+        <span class="cate-title">
+                <a href="/category/docker">
+                    docker
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/js">
+                    js
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e4%bb%a3%e7%a0%81%e7%89%87%e6%ae%b5">
+                    代码片段
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%8e%86%e5%8f%b2">
+                    历史
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e5%ae%97%e6%95%99">
+                    宗教
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e6%8a%80%e6%9c%af">
+                    技术
+                </a>&nbsp;
+            </span>
+
+        
+
+        <span class="cate-title">
+                <a href="/category/%e7%ac%94%e8%ae%b0">
+                    笔记
+                </a>&nbsp;
+            </span>
+
+        
+    </div>
+
+    <div class="footer">
+        
+
+        <span>© Guhao's Blog 2015 - 2020. &nbsp;&nbsp;</span>
+        <span>Powered by <a href="https://github.com/ghaoo/chca">CHCA</a>. </span>
+
+    </div>
+
+</div>
+
+
+
+<div class="main">      
+
+    <div class="page-top animated fadeInDown">
+        <div class="nav">
+            <li><a href="/">博客首页</a>
+            </li>
+            <li><a href="/archive">文章归档</a>
+            </li>
+            <li><a href="/about.html">关于作者</a>
+            </li>
+        </div>
+        <div class="information">
+            <div class="back_btn">
+            </div>
+            <div class="avatar"><img src="/assets/avatar.jpg">
+            </div>
+        </div>
+    </div>
+
+    <div class="autopagerize_page_element">
+        <div class="content">
+
+            <div class="post-page">
+    <div class="post animated fadeInDown">
+        <div class="post-title">
+            <h3>使用chca搭建静态博客
+            </h3>
+        </div>
+        <div class="post-content" id="content">
+
+            
+
+<p><h4>文章导航:</h4><nav>
+<ul>
+<li>
+<ul>
+<li><a href="#toc_0">必要步骤</a>
+<ul>
+<li><a href="#toc_1">下载chca</a></li>
+<li><a href="#toc_2">go 源码安装</a></li>
+<li><a href="#toc_3">下载chca模板</a></li>
+</ul></li>
+<li><a href="#toc_4">使用步骤</a>
+<ul>
+<li><a href="#toc_5">第一步：初始化</a></li>
+<li><a href="#toc_6">第二步：运行chca</a></li>
+</ul></li>
+<li><a href="#toc_7">其他命令</a>
+<ul>
+<li><a href="#toc_8">新建 markdown 文件</a></li>
+<li><a href="#toc_9">生成静态页面</a></li>
+<li><a href="#toc_10">开启文件监听器</a></li>
+<li><a href="#toc_11">打开内部服务器</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></p>
+
+<p>chca是一个使用golang开发的静态博客生成器，简单、方便、快捷，抛弃每次都需要使用命令编译文件，采用文件监听方式编译，作者只需把markdown文件放到配置中的markdown文件夹下就能自动生成html了。</p>
+
+<blockquote>
+<p>chca支持全平台</p>
+</blockquote>
+
+<p>如果你是个不懂程序的小白，chca更加适合你，只需要修改少量配置就可以搭建一个属于自己的博客了。最重要的是，如果你没有自己的服务器，可以将其搭建在github pages上，完全免费的哦。</p>
+
+<p>关于为什么要开博客？可以看看这篇文章<a href="https://zhuanlan.zhihu.com/p/19743861">《为什么你要写博客？》</a></p>
+
+<p>关于如何在github上搭建博客，网上有很多教程，就不在赘述了。</p>
+
+<h2 id="toc_0">必要步骤</h2>
+
+<h3 id="toc_1">下载chca</h3>
+
+<p>Windows：<a href="http://golune.qiniudn.com/chca-win64.tar.gz">http://golune.qiniudn.com/chca-win64.tar.gz</a></p>
+
+<p>Linux：<a href="http://golune.qiniudn.com/chca-linux64.tar.gz">http://golune.qiniudn.com/chca-linux64.tar.gz</a></p>
+
+<p>Mac：<a href="http://golune.qiniudn.com/chca-darwin64.tar.gz">http://golune.qiniudn.com/chca-darwin64.tar.gz</a></p>
+
+<p>下载平台对应的程序，新建一个文件夹来存放chca所有的文件，并将chca解压到本文件夹下</p>
+
+<blockquote>
+<p>如果打算将博客搭建在github上，还需要下载git和申请一个github账号</p>
+</blockquote>
+
+<h3 id="toc_2">go 源码安装</h3>
+
+<pre><code class="language-go">go get -v github.com/num5/chca
+</code></pre>
+
+<h3 id="toc_3">下载chca模板</h3>
+
+<p>下载地址：<a href="http://golune.qiniudn.com/default-theme.tar.gz">http://golune.qiniudn.com/default-theme.tar.gz</a></p>
+
+<blockquote>
+<p>关于模板语法说明，请参照：<a href="https://github.com/num5/chca/blob/master/template.md">chca模板语法说明</a></p>
+</blockquote>
+
+<h2 id="toc_4">使用步骤</h2>
+
+<p>chca只需要两步就可以创建一个带有独立web服务器的博客</p>
+
+<h3 id="toc_5">第一步：初始化</h3>
+
+<p>打开命令终端，出入命令：</p>
+
+<pre><code class="language-bash">chca init
+</code></pre>
+
+<blockquote>
+<p>这一步会创建 <code>markdown</code> 文件夹和 <code>config.yml</code> 文件，<code>markdown</code> 文件夹用于存放博客的源markdown文件，<code>config.yml</code>是配置文件</p>
+</blockquote>
+
+<p><code>config.yml</code>配置内容如下：</p>
+
+<pre><code class="language-yaml"># config.yml
+
+# 站点信息
+title: 我的网站
+subtitle: 网站标题
+description: mate-description
+keywords: mate-keywords
+summary_line: 10 // 首页文章行数
+home_art_num: 30 // 首页文章数量
+
+# 文件夹相关
+theme: theme/blog //网站模板
+markdown: markdown //博客markdown文件存放文件夹
+html: /data/www/html //博客html文件存放文件夹
+storage: storage //数据存放文件夹，暂时未用到
+
+# 作者信息
+author: your name
+avatar: /assets/avatar.png  //头像连接，一般放到assets或者avatar文件夹里
+github: https://github.com/num5  //github主页
+weibo: http://weibo.com/golune  //微博主页
+mail: 378999587@qq.com  //email 地址
+zhihu: https://www.zhihu.com/people/golune  //知乎主页
+ 
+# 监听信息配置
+paths:  // 监听文件夹
+  - markdown
+exts:  // 监听后缀名
+  - md
+
+# 上传信息
+upload_theme: theme/upload  // 上传模版地址
+
+# 自定义标题，可不配置，使用chca设置好的标题
+home_title:     //主页标题
+archive_title:  //文章归档标题
+tag_title:      //标签导航页面标题
+cate_title:     //分类导航页面标题
+about_title:    //简历页面标题
+article_title:  //文章标题标头
+
+</code></pre>
+
+<p>根据自己需求修改配置文件</p>
+
+<blockquote>
+<p>初始化以后需要在config.yml文件同目录下创建theme文件夹用于存放模板文件</p>
+</blockquote>
+
+<h3 id="toc_6">第二步：运行chca</h3>
+
+<pre><code class="language-bash">chca run [port]
+</code></pre>
+
+<p>打开chca服务，这一步自动打开监听器和内置webserver，默认webserver端口9900，端口可自定义，浏览器输入 <a href="http://localhost:9900">http://localhost:9900</a> 就能访问博客了。<br />
+监听器监听<code>markdown</code>文件夹下的以 <code>.md</code> 为后缀的文件，可配置（参照上一步配置中<code>监听信息配置</code>）。当markdown文件夹下的md文件有变动时就会触发编译命令，自动将自动编译markdown文件，生成静态页面。</p>
+
+<h2 id="toc_7">其他命令</h2>
+
+<h3 id="toc_8">新建 markdown 文件</h3>
+
+<pre><code class="language-bash">chca new filename
+</code></pre>
+
+<p>markdown文件需要以 <code>---</code> 开头进行说明：</p>
+
+<pre><code class="language-md">---
+date: 2017-01-01
+title: 我的第一篇博客
+categories:
+- 技术
+tags:
+- golang
+- chca
+---
+</code></pre>
+
+<blockquote>
+<p>建议使用 <code>chca new</code> 命令创建markdown文件</p>
+</blockquote>
+
+<p><code>about.md</code>文件是存放作者简历的文件，存放在markdown文件夹，另外readme.md和about.md不会被文章解析器解析</p>
+
+<h3 id="toc_9">生成静态页面</h3>
+
+<pre><code class="language-bash">chca complate (或chca c)
+</code></pre>
+
+<p>这条命令用于编译markdown文件生成静态html页面</p>
+
+<h3 id="toc_10">开启文件监听器</h3>
+
+<pre><code class="language-bash">chca watch (或者chca w)
+</code></pre>
+
+<p>开启文件监听器，监听文件夹和文件后缀名在config.yml里配置</p>
+
+<h3 id="toc_11">打开内部服务器</h3>
+
+<pre><code class="language-bash">chca http [port]
+</code></pre>
+
+<p>打开内部服务器，端口可选，默认监听端口9900</p>
+
+<hr />
+
+<p>Markdown语法参考链接: <a href="http://www.appinn.com/markdown/">Markdown 语法说明 (简体中文版)</a></p>
+
+
+            <nav class="article-nav" id="state">
+                <span class="label label-important">PERMANENT LINK:</span>
+                <a href="http://chca.me/article/2017/5/16/%e4%bd%bf%e7%94%a8chca%e6%90%ad%e5%bb%ba%e9%9d%99%e6%80%81%e5%8d%9a%e5%ae%a2/">http://chca.me/article/2017/5/16/使用chca搭建静态博客/</a>
+            </nav>
+
+        </div>
+
+        <div class="post-footer">
+            <div class="meta">
+                <div class="info">
+                    <i class="fa fa-calendar"></i>
+                    <span class="date">2017-05-16</span>
+                    &nbsp;&nbsp;
+                    <i class="fa fa-folder-open"></i>
+                    
+                    <a href="/category/%e6%8a%80%e6%9c%af">技术</a>&nbsp;
+                    
+                    &nbsp;&nbsp;
+                    <i class="fa fa-tags"></i>
+                    
+                    <a href="/tag/chca">chca</a>&nbsp;
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comment_container">
+        <div id="SOHUCS" sid="64f3560e7dc6f13462ce86f20e933b58" ></div>
+        <script type="text/javascript">
+            (function(){
+                window._config = { showScore: true };
+                var appid = 'xxxxx';
+                var conf = 'prod_xxxxxxxxxxxxxxxxxxxxxxxxxx';
+                var width = window.innerWidth || document.documentElement.clientWidth;
+                if (width < 960) {
+                    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("http://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+
+        </script>
+    </div>
+
+</div>
+
+            <div class="pagination">
+                <ul class="clearfix">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/languages/go.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+    });
+</script>
+
+</body>
+</html>
