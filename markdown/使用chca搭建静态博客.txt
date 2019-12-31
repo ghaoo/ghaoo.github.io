@@ -1,0 +1,184 @@
+---
+date: 2017-05-16
+time: 16:48:54
+title: 使用chca搭建静态博客
+categories:
+- 技术
+tags:
+- chca
+---
+
+[toc]
+
+chca是一个使用golang开发的静态博客生成器，简单、方便、快捷，抛弃每次都需要使用命令编译文件，采用文件监听方式编译，作者只需把markdown文件放到配置中的markdown文件夹下就能自动生成html了。
+
+> chca支持全平台
+
+如果你是个不懂程序的小白，chca更加适合你，只需要修改少量配置就可以搭建一个属于自己的博客了。最重要的是，如果你没有自己的服务器，可以将其搭建在github pages上，完全免费的哦。
+
+关于为什么要开博客？可以看看这篇文章[《为什么你要写博客？》](https://zhuanlan.zhihu.com/p/19743861)
+
+关于如何在github上搭建博客，网上有很多教程，就不在赘述了。
+
+## 必要步骤
+
+### 下载chca
+
+Windows：http://golune.qiniudn.com/chca-win64.tar.gz
+
+Linux：http://golune.qiniudn.com/chca-linux64.tar.gz
+
+Mac：http://golune.qiniudn.com/chca-darwin64.tar.gz
+
+下载平台对应的程序，新建一个文件夹来存放chca所有的文件，并将chca解压到本文件夹下
+
+> 如果打算将博客搭建在github上，还需要下载git和申请一个github账号
+
+
+### go 源码安装
+```go
+go get -v github.com/num5/chca
+```
+
+### 下载chca模板
+
+下载地址：http://golune.qiniudn.com/default-theme.tar.gz
+
+> 关于模板语法说明，请参照：[chca模板语法说明](https://github.com/num5/chca/blob/master/template.md)
+
+## 使用步骤
+
+chca只需要两步就可以创建一个带有独立web服务器的博客
+
+### 第一步：初始化
+
+打开命令终端，出入命令：
+
+```bash
+chca init
+```
+
+> 这一步会创建 `markdown` 文件夹和 `config.yml` 文件，`markdown` 文件夹用于存放博客的源markdown文件，`config.yml`是配置文件
+
+`config.yml`配置内容如下：
+
+```yaml
+# config.yml
+
+# 站点信息
+title: 我的网站
+subtitle: 网站标题
+description: mate-description
+keywords: mate-keywords
+summary_line: 10 // 首页文章行数
+home_art_num: 30 // 首页文章数量
+
+# 文件夹相关
+theme: theme/blog //网站模板
+markdown: markdown //博客markdown文件存放文件夹
+html: /data/www/html //博客html文件存放文件夹
+storage: storage //数据存放文件夹，暂时未用到
+
+# 作者信息
+author: your name
+avatar: /assets/avatar.png  //头像连接，一般放到assets或者avatar文件夹里
+github: https://github.com/num5  //github主页
+weibo: http://weibo.com/golune  //微博主页
+mail: 378999587@qq.com  //email 地址
+zhihu: https://www.zhihu.com/people/golune  //知乎主页
+ 
+# 监听信息配置
+paths:  // 监听文件夹
+  - markdown
+exts:  // 监听后缀名
+  - md
+
+# 上传信息
+upload_theme: theme/upload  // 上传模版地址
+
+# 自定义标题，可不配置，使用chca设置好的标题
+home_title:     //主页标题
+archive_title:  //文章归档标题
+tag_title:      //标签导航页面标题
+cate_title:     //分类导航页面标题
+about_title:    //简历页面标题
+article_title:  //文章标题标头
+
+```
+
+根据自己需求修改配置文件
+
+> 初始化以后需要在config.yml文件同目录下创建theme文件夹用于存放模板文件
+
+
+### 第二步：运行chca
+
+```bash
+chca run [port]
+```
+
+打开chca服务，这一步自动打开监听器和内置webserver，默认webserver端口9900，端口可自定义，浏览器输入 [http://localhost:9900](http://localhost:9900) 就能访问博客了。
+监听器监听`markdown`文件夹下的以 `.md` 为后缀的文件，可配置（参照上一步配置中`监听信息配置`）。当markdown文件夹下的md文件有变动时就会触发编译命令，自动将自动编译markdown文件，生成静态页面。
+
+
+## 其他命令
+
+### 新建 markdown 文件
+
+```bash
+chca new filename
+```
+
+markdown文件需要以 `---` 开头进行说明：
+
+```md
+---
+date: 2017-01-01
+title: 我的第一篇博客
+categories:
+- 技术
+tags:
+- golang
+- chca
+---
+```
+
+> 建议使用 `chca new` 命令创建markdown文件
+
+`about.md`文件是存放作者简历的文件，存放在markdown文件夹，另外readme.md和about.md不会被文章解析器解析
+
+### 生成静态页面
+
+```bash
+chca complate (或chca c)
+```
+
+这条命令用于编译markdown文件生成静态html页面
+
+### 开启文件监听器
+
+```bash
+chca watch (或者chca w)
+```
+
+开启文件监听器，监听文件夹和文件后缀名在config.yml里配置
+
+### 打开内部服务器
+
+```bash
+chca http [port]
+```
+
+打开内部服务器，端口可选，默认监听端口9900
+
+--------------
+
+Markdown语法参考链接: [Markdown 语法说明 (简体中文版)](http://www.appinn.com/markdown/)
+
+
+
+
+
+
+
+

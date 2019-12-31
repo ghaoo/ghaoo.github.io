@@ -162,47 +162,47 @@ type Anget struct {&lt;br /&gt;
 <p>代码，首先创建一个名为Anget的结构体：</p>
 
 <pre><code class="language-go">type Anget struct {
-	Server string           //需要代理的host
-	Uri    string           //访问的uri
-	Param  string           //传递的参数
-	Method string           //访问方式（restful）
-	resp   *http.Response
+    Server string           //需要代理的host
+    Uri    string           //访问的uri
+    Param  string           //传递的参数
+    Method string           //访问方式（restful）
+    resp   *http.Response
 }
 </code></pre>
 
 <p>给Anget添加一个result方法，接收返回的信息</p>
 
 <pre><code class="language-go">func (anget *Anget) result(w http.ResponseWriter, r *http.Request) {
-	// 解析参数, 默认是不会解析的
-	r.ParseForm()
+    // 解析参数, 默认是不会解析的
+    r.ParseForm()
 
-	anget.Uri = r.URL.Path  //获取访问的uri
-	anget.Method = r.Method //获取访问方法method
-	anget.Param = r.Form.Encode()   //获取需要的参数
+    anget.Uri = r.URL.Path  //获取访问的uri
+    anget.Method = r.Method //获取访问方法method
+    anget.Param = r.Form.Encode()   //获取需要的参数
 
-	u, _ := url.Parse(&quot;http://&quot; + anget.Server + anget.Uri)
+    u, _ := url.Parse(&quot;http://&quot; + anget.Server + anget.Uri)
 
     // 输出想要的信息
-	log.Println(&quot;地址：&quot;, u)
-	log.Println(&quot;参数：&quot;, anget.Param)
-	log.Println(&quot;方法：&quot;, anget.Method)
-	total++
+    log.Println(&quot;地址：&quot;, u)
+    log.Println(&quot;参数：&quot;, anget.Param)
+    log.Println(&quot;方法：&quot;, anget.Method)
+    total++
 
     // 判断访问方法，访问原链接
-	switch anget.Method {
-	case &quot;GET&quot;:
-		anget.resp, _ = http.Get(u.String())
-	case &quot;POST&quot;:
-		anget.resp, _ = http.Post(u.String(), &quot;application/x-www-form-urlencoded&quot;, strings.NewReader(anget.Param))
-	default:
-		http.Error(w, http.StatusText(500), 500)
-	}
-	defer anget.resp.Body.Close()
-	body, _ := ioutil.ReadAll(anget.resp.Body)
+    switch anget.Method {
+    case &quot;GET&quot;:
+        anget.resp, _ = http.Get(u.String())
+    case &quot;POST&quot;:
+        anget.resp, _ = http.Post(u.String(), &quot;application/x-www-form-urlencoded&quot;, strings.NewReader(anget.Param))
+    default:
+        http.Error(w, http.StatusText(500), 500)
+    }
+    defer anget.resp.Body.Close()
+    body, _ := ioutil.ReadAll(anget.resp.Body)
 
-	// 输出到客户端
-	fmt.Fprintf(w, string(body))
-	log.Println(&quot;返回：&quot;, string(body))
+    // 输出到客户端
+    fmt.Fprintf(w, string(body))
+    log.Println(&quot;返回：&quot;, string(body))
 }
 </code></pre>
 
@@ -210,49 +210,49 @@ type Anget struct {&lt;br /&gt;
 
 <pre><code class="language-go">func (anget *Anget) Run(port string) {
     //检测需要代理的host是否有效
-	conn, err := net.Dial(&quot;tcp&quot;, anget.Server)
-	if err != nil {
-		fmt.Println(&quot;连接服务端失败:&quot;, err.Error())
-		os.Exit(0)
-	}
-	fmt.Println(&quot;已连接测试服务器～～～&quot;)
-	conn.Close()
+    conn, err := net.Dial(&quot;tcp&quot;, anget.Server)
+    if err != nil {
+        fmt.Println(&quot;连接服务端失败:&quot;, err.Error())
+        os.Exit(0)
+    }
+    fmt.Println(&quot;已连接测试服务器～～～&quot;)
+    conn.Close()
 
-	http.HandleFunc(&quot;/&quot;+anget.Uri, anget.result)
-	
-	fmt.Println(&quot;代理服务器开启，端口为：&quot; + port)
-	// 设置监听的端口
-	err = http.ListenAndServe(&quot;:&quot; + port, nil)
-	if err != nil {
-		log.Fatal(&quot;ListenAndServe: &quot;, err)
-	}
+    http.HandleFunc(&quot;/&quot;+anget.Uri, anget.result)
+    
+    fmt.Println(&quot;代理服务器开启，端口为：&quot; + port)
+    // 设置监听的端口
+    err = http.ListenAndServe(&quot;:&quot; + port, nil)
+    if err != nil {
+        log.Fatal(&quot;ListenAndServe: &quot;, err)
+    }
 }
 </code></pre>
 
 <pre><code class="language-go">func main() {
     var ang mod.Anget
 
-	commands := os.Args
-	if len(commands) &lt; 3 {
-		help(&quot;help&quot;)
-		os.Exit(0)
-	}
+    commands := os.Args
+    if len(commands) &lt; 3 {
+        help(&quot;help&quot;)
+        os.Exit(0)
+    }
 
-	switch commands[1] {
-	case &quot;help&quot;:
-		fmt.Println(Helptext)
-	case &quot;run&quot;:
-		switch commands[2] {
-		case &quot;--help&quot;, &quot;-h&quot;:
-			help(&quot;help&quot;)
-			os.Exit(0)
-		default:
-			ang.Server = commands[2]
-		}
-		ang.Run(&quot;9900&quot;)
-	default:
-		help(&quot;help&quot;)
-	}
+    switch commands[1] {
+    case &quot;help&quot;:
+        fmt.Println(Helptext)
+    case &quot;run&quot;:
+        switch commands[2] {
+        case &quot;--help&quot;, &quot;-h&quot;:
+            help(&quot;help&quot;)
+            os.Exit(0)
+        default:
+            ang.Server = commands[2]
+        }
+        ang.Run(&quot;9900&quot;)
+    default:
+        help(&quot;help&quot;)
+    }
 }
 </code></pre>
 

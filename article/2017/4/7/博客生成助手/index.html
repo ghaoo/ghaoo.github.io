@@ -214,12 +214,12 @@ func main() {
     // 创建机器人并给机器人命名
     bot := axiom.New(&quot;Axiom&quot;)
     // 添加shell适配器
-	bot.AddAdapter(axiom.NewShell(b))
-	// 注册blog监听器
-	bot.Register(&amp;BlogListener{})
+    bot.AddAdapter(axiom.NewShell(b))
+    // 注册blog监听器
+    bot.Register(&amp;BlogListener{})
 
     // 运行机器人
-	b.Run()
+    b.Run()
 }
 </code></pre>
 
@@ -264,7 +264,7 @@ func (b *BlogListener) updateChca(ctx *axiom.Context, m string) {
     ctx.Reply(&quot;解压缩完成，复制文件...\n&quot;)
 
     if runtime.GOOS != &quot;windows&quot; {
-        cmd :=exec.Command(&quot;chmod&quot;, &quot;777&quot;, 	b.WorkerDir+&quot;/chca&quot;)
+        cmd :=exec.Command(&quot;chmod&quot;, &quot;777&quot;,  b.WorkerDir+&quot;/chca&quot;)
         if err := cmd.Start(); err != nil {
             ctx.Reply(&quot;修改文件权限失败,请手动修改\n&quot;)
             return
